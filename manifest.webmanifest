@@ -1,0 +1,17 @@
+{
+  "name": "ย่านเสียง · วัดช่วงเสียงและเทียบเสียง",
+  "short_name": "ย่านเสียง",
+  "description": "วัดช่วงเสียงร้อง เทียบเสียง และฝึกร้องให้ตรงโน้ต",
+  "lang": "th",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0a14",
+  "theme_color": "#0d0a14",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

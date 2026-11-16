@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0a14">
+<title>ย่านเสียง · วัดช่วงเสียงและเทียบเสียง</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ย่านเสียง">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="logo">★</span> ย่านเสียง</div>
+  <div class="chip" id="chip">ไมค์ปิดอยู่</div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab on" data-tab="measure" role="tab">① วัดช่วงเสียง</button>
+  <button class="tab" data-tab="compare" role="tab">② เทียบเสียง</button>
+  <button class="tab" data-tab="match" role="tab">③ ฝึกตรงโน้ต</button>
+</nav>
+
+<main>
+
+<!-- ================= วัดช่วงเสียง ================= -->
+<section id="tab-measure" class="pane">
+  <ol class="stepper" id="stepper">
+    <li data-s="1">เสียงต่ำสุด</li>
+    <li data-s="2">เสียงสูงสุด</li>
+    <li data-s="3">ผลลัพธ์</li>
+  </ol>
+
+  <div class="card guide">
+    <h2 id="mTitle"></h2>
+    <p id="mBody"></p>
+  </div>
+
+  <div class="caught">
+    <div class="cbox"><span>ต่ำสุดที่จับได้</span><b id="chipLow">–</b></div>
+    <div class="cbox"><span>สูงสุดที่จับได้</span><b id="chipHigh">–</b></div>
+  </div>
+
+  <p class="msg" id="msg" aria-live="polite"></p>
+
+  <div class="actions">
+    <button class="btn primary" id="btnMain">เริ่มวัด</button>
+    <button class="btn" id="btnReset" hidden>เริ่มใหม่</button>
+    <button class="btn ghost" id="btnDemo">ลองด้วยเสียงสังเคราะห์</button>
+  </div>
+
+  <div class="live" id="liveBox">
+    <div class="gauge-wrap">
+      <canvas id="gauge"></canvas>
+      <div class="gauge-center">
+        <div class="g-note" id="gNote">–</div>
+        <div class="g-solf" id="gSolf">&nbsp;</div>
+        <div class="g-meta" id="gMeta">&nbsp;</div>
+      </div>
+    </div>
+    <canvas id="trace" class="trace"></canvas>
+    <div class="level" title="ระดับเสียงจากไมค์"><i id="level"></i></div>
+  </div>
+
+  <div class="card result" id="result" hidden>
+    <div class="r-label">ช่วงเสียงของคุณ</div>
+    <div class="r-range" id="rRange"></div>
+    <div class="r-span" id="rSpan"></div>
+    <div class="r-type">
+      เสียงใกล้เคียงกับ <b id="rType"></b>
+      <small id="rTypeNote"></small>
+    </div>
+    <div id="rBars" class="vt-bars"></div>
+    <p class="fine">ประเมินจากช่วงเสียงเท่านั้น (ไม่ได้ดูโทนเสียง) ใช้เป็นแนวทางสนุก ๆ ไม่ใช่การวินิจฉัย</p>
+    <div class="save-row">
+      <input id="saveName" type="text" maxlength="24" placeholder="ชื่อ เช่น ฉัน" value="ฉัน">
+      <button class="btn primary" id="btnSave">บันทึก</button>
+    </div>
+    <button class="btn wide" id="btnToCompare" hidden>ไปเทียบเสียง →</button>
+  </div>
+</section>
+
+<!-- ================= เทียบเสียง ================= -->
+<section id="tab-compare" class="pane" hidden>
+  <div class="card">
+    <h2>ช่วงเสียงเทียบกัน</h2>
+    <div id="cmpEmpty" class="empty" hidden>
+      ยังไม่มีข้อมูล — ไปวัดช่วงเสียงของคุณก่อน หรือเพิ่มช่วงเสียงของคนอื่นด้านล่าง
+      <div><button class="btn" id="btnGoMeasure">ไปวัดช่วงเสียง</button></div>
+    </div>
+    <div id="chartWrap"><svg id="chart" role="img" aria-label="กราฟเทียบช่วงเสียง"></svg></div>
+    <label class="check"><input type="checkbox" id="showTypes" checked> แสดงประเภทเสียงมาตรฐาน</label>
+    <p class="overlap" id="overlap"></p>
+  </div>
+
+  <div class="card">
+    <h2>รายการช่วงเสียง</h2>
+    <ul class="list" id="profList"></ul>
+    <details class="add">
+      <summary>+ เพิ่มช่วงเสียงเอง (เช่น เพื่อน หรือนักร้องที่รู้ช่วงเสียง)</summary>
+      <div class="form-row">
+        <input id="addName" type="text" maxlength="24" placeholder="ชื่อ">
+        <label>ต่ำสุด <select id="addLow"></select></label>
+        <label>สูงสุด <select id="addHigh"></select></label>
+        <button class="btn" id="btnAdd">เพิ่ม</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>เพลงนี้ร้องได้ไหม?</h2>
+    <p class="fine">ใส่โน้ตต่ำสุด–สูงสุดของทำนองหลักของเพลง (ดูจากโน้ตเพลงหรือแอปคอร์ด) แอปจะบอกว่าต้องเปลี่ยนคีย์เท่าไร</p>
+    <label class="inline">เทียบกับ <select id="songProfile"></select></label>
+    <div class="form-row">
+      <input id="songName" type="text" maxlength="40" placeholder="ชื่อเพลง">
+      <label>ต่ำสุด <select id="songLow"></select></label>
+      <label>สูงสุด <select id="songHigh"></select></label>
+      <button class="btn" id="btnSong">เพิ่มเพลง</button>
+    </div>
+    <ul class="list" id="songList"></ul>
+  </div>
+</section>
+
+<!-- ================= ฝึกตรงโน้ต ================= -->
+<section id="tab-match" class="pane" hidden>
+  <div class="card guide">
+    <h2>เทียบเสียงกับโน้ตเป้าหมาย</h2>
+    <p>กด “ฟังเสียงตัวอย่าง” แล้วร้องตาม ค้างให้ตรงโน้ตภายใน ±25 เซนต์ ประมาณ 1 วินาทีจึงนับว่าผ่าน
+       (ถ้าเปิดเสียงตัวอย่างจากลำโพง แอปจะหยุดฟังชั่วคราวระหว่างที่เล่น)</p>
+  </div>
+
+  <div class="card">
+    <div class="tgt-row">
+      <label>โน้ตเป้าหมาย <select id="tgtSel"></select></label>
+      <button class="btn" id="btnPlay">▶ ฟังเสียงตัวอย่าง</button>
+      <button class="btn" id="btnRandom">สุ่มโน้ต</button>
+    </div>
+    <label class="check"><input type="checkbox" id="octFree" checked> ร้องอ็อกเทฟไหนก็ได้ (ชาย/หญิงร้องคนละอ็อกเทฟ)</label>
+
+    <div class="tgt-big" id="tgtBig">C4 · โด</div>
+    <div class="now" id="mNow">&nbsp;</div>
+
+    <div class="meter" id="meter">
+      <div class="zone"></div>
+      <div class="mid"></div>
+      <div class="needle" id="needle"></div>
+      <span class="lo">ต่ำไป</span><span class="hi">สูงไป</span>
+    </div>
+    <p class="msg big" id="mMsg" aria-live="polite">กด “เริ่มร้อง” แล้วร้องโน้ตเป้าหมาย</p>
+    <div class="hold"><i id="holdBar"></i></div>
+    <div class="level"><i id="level2"></i></div>
+
+    <div class="actions">
+      <button class="btn primary" id="btnListen">เริ่มร้อง</button>
+      <button class="btn ghost" id="btnMDemo">ลองด้วยเสียงสังเคราะห์</button>
+      <span class="score">ผ่านแล้ว <b id="score">0</b> ครั้ง</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  ประมวลผลในเครื่องทั้งหมด ไม่อัดเสียงและไม่ส่งไปที่ไหน · ใช้หูฟังจะแม่นที่สุดเมื่อเปิดเสียงตัวอย่าง
+</footer>
+
+<script src="pitch.js"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
